@@ -2,4 +2,5 @@
 sphinx #for documentation
 numpy
 pandas
-tools
+pytest
+xlrd
