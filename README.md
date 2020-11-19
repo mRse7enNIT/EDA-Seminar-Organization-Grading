@@ -10,4 +10,5 @@ This repository contains a python project to manage seminars in the chair of Des
 
 ## Install packages
 ```pip install -r requirements.txt```
+
  
