@@ -1,2 +1,5 @@
 # nose # is a testing framework
 sphinx #for documentation
+numpy
+pandas
+tools
