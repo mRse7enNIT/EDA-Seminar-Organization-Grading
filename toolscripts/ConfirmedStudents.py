@@ -57,6 +57,7 @@ def choose_fixed_place(modified_df):
     # for (idx,row) in modified_df.iterrows():
     #     print(idx,row)
     filtered_df = modified_df[(modified_df.STATUS=='Fixplatz')]
+    filtered_df.reset_index(inplace=True, drop=True)
     filtered_df = filtered_df[['FAMILIENNAME','VORNAME','MATRIKELNUMMER','GESCHLECHT','E-MAIL']]
     return filtered_df
 
@@ -70,6 +71,31 @@ def add_columns(filtered_df):
 def add_columns_HS(extended_df):
     print("adding additional columns for REVIEW FÜR (AKTIVE), REVIEW VON (PASSIV)")
     extended_df = extended_df.assign(REVIEW_FÜR='', REVIEW_VON='')
+    return extended_df
+
+
+def shuffle_review(extended_df):
+    print("Shuffling the review for column to assign a student report to another student")
+    #uncomment this section if you want random shuffling
+    # shuffled_review_column = extended_df.drop(extended_df.columns.difference(['REVIEW_FÜR']), 1)
+    # shuffled_review_column['REVIEW_FÜR'] = extended_df['MATRIKELNUMMER']
+    # shuffled_review_column = shuffled_review_column.sample(frac=1)
+    # shuffled_review_column.reset_index(inplace=True, drop=True)
+    # shuffled_df = extended_df
+    # shuffled_df['REVIEW_FÜR'] = shuffled_review_column['REVIEW_FÜR']
+    # shuffled_df_copy = shuffled_df
+
+    #shift by 1 review allotement
+    for index, row in extended_df.iterrows():
+        if index < (extended_df.shape[0]- 1):
+            row['REVIEW_FÜR'] = extended_df.iloc[index+1]['MATRIKELNUMMER']
+        else:
+            row['REVIEW_FÜR'] = extended_df.iloc[0]['MATRIKELNUMMER']
+    for index, row in extended_df.iterrows():
+        if index != 0:
+            row['REVIEW_VON'] = extended_df.iloc[index-1]['MATRIKELNUMMER']
+        else:
+            row['REVIEW_VON'] = extended_df.iloc[extended_df.shape[0]-1]['MATRIKELNUMMER']
     return extended_df
 
 
@@ -89,7 +115,8 @@ def main():
     extended_df = add_columns(filtered_df)
     if(arguments==2 and sys.argv[2]=='-HS'):
         extended_df = add_columns_HS(extended_df)
-    write_masterfile(extended_df)
+    shuffled_df = shuffle_review(extended_df)
+    write_masterfile(shuffled_df)
 
 
 if __name__ == "__main__":
