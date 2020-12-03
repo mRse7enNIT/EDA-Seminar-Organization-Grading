@@ -18,7 +18,7 @@ This repository contains a python project to manage seminars in the chair of Des
 ```python toolscripts/ConfirmedStudents.py DataSources/input.xlsx -HS```
 
 
-##Changelog(26.11.2020)
+## Changelog(26.11.2020)
 * used openpyxl
 * -HS switch is working 
 * replaced headers while xlsx-->dataframe
@@ -28,5 +28,5 @@ This repository contains a python project to manage seminars in the chair of Des
 * writeback dataframe to xlsx masterfile in /OutputFiles 
 * added pycharm configs to run test scripts
 
-##Pending(Script1)
+## Pending(Script1)
 * shuffling of review in between students in -HS case
