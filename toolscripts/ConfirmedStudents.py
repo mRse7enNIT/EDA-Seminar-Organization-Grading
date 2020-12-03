@@ -15,6 +15,20 @@ from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl import *
 import sys
+import argparse
+import os
+
+def create_arg_parser():
+    # Creates and returns the ArgumentParser object
+
+    parser = argparse.ArgumentParser(description='Gives confirmed list of students with review allocation')
+    parser.add_argument('inputFile',
+                    help='Path to the input xlsx file')
+    parser.add_argument('-HS', dest='hauptseminar', action='store_true',
+                    help='use this switch to toggle to Hauptseminar')
+    parser.add_argument('-u', '--update', dest='updatepath', action='append',
+                        help='use this to update an existing master file with new students from moodle')
+    return parser
 
 def read_srcfile(source_filename):
     # Import the src file from TUMonline into a Pandas dataframe
@@ -23,7 +37,7 @@ def read_srcfile(source_filename):
     #print(src_xlsx.sheet_names)
     #src_df = src_xlsx.parse('TUMonline_2020-11-07')
     src_wb = load_workbook(source_filename)
-    print("The available sheets in the source xlsx file")
+    print("The available sheets in the xlsx file")
     print(src_wb.sheetnames)
     src_sheet = src_wb.active
     print("selected sheet for data manipulation:")
@@ -100,24 +114,48 @@ def shuffle_review(extended_df):
 
 
 def main():
-    arguments = len(sys.argv) - 1
-    position = 1
-    while (arguments >= position):
-        print("Parameter %i: %s" % (position, sys.argv[position]))
-        position = position + 1
-    source_filename = sys.argv[1]
-    src_df = read_srcfile(source_filename)
-    print(src_df.to_string())
-    modified_df = replace_header(src_df)
-    print(modified_df)
-    filtered_df =choose_fixed_place(modified_df)
-    print(filtered_df)
-    extended_df = add_columns(filtered_df)
-    if(arguments==2 and sys.argv[2]=='-HS'):
-        extended_df = add_columns_HS(extended_df)
-    shuffled_df = shuffle_review(extended_df)
-    write_masterfile(shuffled_df)
+    arg_parser = create_arg_parser()
+    parsed_args = arg_parser.parse_args(sys.argv[1:])
+    if os.path.exists(parsed_args.inputFile):
+        print("Input File exists")
+        src_df = read_srcfile(parsed_args.inputFile)
+        print(src_df.to_string())
+        modified_df = replace_header(src_df)
+        print(modified_df)
+        filtered_df = choose_fixed_place(modified_df)
+        print(filtered_df)
+        extended_df = add_columns(filtered_df)
+    if(parsed_args.updatepath):
+        print("Updating student information in {}".format(parsed_args.updatepath))
+        des_df = read_srcfile("".join(parsed_args.updatepath))
+        print(des_df.to_string())
+        modified_df_update = replace_header(des_df)
+        print(modified_df_update)
+        modified_df_update = modified_df_update.loc[:, modified_df_update.columns.notnull()]
+        modified_df_update.reset_index(inplace=True, drop=True)
+        #extended_df = add_columns(filtered_df_update)
+        for index, row in extended_df.iterrows():
+            flag_new_entry = 1
+            for index_updated, row_updated in modified_df_update.iterrows():
+                if extended_df.iloc[index]['MATRIKELNUMMER'] == modified_df_update.iloc[index_updated]['MATRIKELNUMMER']:
+                    flag_new_entry = 0
+                    break
+            if flag_new_entry == 1:
+                modified_df_update.loc[len(modified_df_update)] = extended_df.iloc[index]
 
+
+    # arguments = len(sys.argv) - 1
+    # position = 1
+    # while (arguments >= position):
+    #     print("Parameter %i: %s" % (position, sys.argv[position]))
+    #     position = position + 1
+    # source_filename = sys.argv[1]
+
+    #if(arguments==2 and sys.argv[2]=='-HS'):
+    if (parsed_args.hauptseminar):
+        extended_df = add_columns_HS(extended_df)
+        extended_df = shuffle_review(extended_df)
+    write_masterfile(extended_df)
 
 if __name__ == "__main__":
     main()
