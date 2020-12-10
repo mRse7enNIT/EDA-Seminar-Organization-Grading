@@ -18,7 +18,14 @@ This repository contains a python project to manage seminars in the chair of Des
 ```python toolscripts/ConfirmedStudents.py DataSources/input.xlsx -HS```
 
 * for update with an existing Master file
-```python toolscripts/ConfirmedStudents.py DataSources/input_updated.xlsx -HS --update=OutputFiles/master_sheet_2020_12_03_16_05_00.xlsx ```
+```python toolscripts/ConfirmedStudents.py <new_file_from_TUMonline> --update=<manually_updated_file> ```
+
+for example:
+```python toolscripts/ConfirmedStudents.py DataSources/input_updated.xlsx --update=OutputFiles/master_sheet_2020_12_10_17_11_00.xlsx```
+
+It is to be noted that when updating a manually updated file with latest registered students, -HS key is **not** required. (use -HS for only **first** time in case of Hauptseminar, because it does add extra columns and shuffle the review pattern).
+Only ```--update=<manually updated file>``` is sufficient.
+
 ## Changelog(03.12.2020)
 * used openpyxl
 * -HS switch is working 
