@@ -17,8 +17,9 @@ This repository contains a python project to manage seminars in the chair of Des
 * For HauptSeminar use the flag -HS
 ```python toolscripts/ConfirmedStudents.py DataSources/input.xlsx -HS```
 
-
-## Changelog(26.11.2020)
+* for update with an existing Master file
+```python toolscripts/ConfirmedStudents.py DataSources/input_updated.xlsx -HS --update=OutputFiles/master_sheet_2020_12_03_16_05_00.xlsx ```
+## Changelog(03.12.2020)
 * used openpyxl
 * -HS switch is working 
 * replaced headers while xlsx-->dataframe
@@ -28,5 +29,10 @@ This repository contains a python project to manage seminars in the chair of Des
 * writeback dataframe to xlsx masterfile in /OutputFiles 
 * added pycharm configs to run test scripts
 
-## Pending(Script1)
-* shuffling of review in between students in -HS case
+==========
+
+* Added shuffling to review to and review for
+* update the master file with a new input file(with extra student entry)
+* added help feature for script(argparse)
+
+## Pending(Script2)
