@@ -142,6 +142,7 @@ def main():
                     break
             if flag_new_entry == 1:
                 modified_df_update.loc[len(modified_df_update)] = extended_df.iloc[index]
+        extended_df = modified_df_update
 
 
     # arguments = len(sys.argv) - 1
