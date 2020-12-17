@@ -26,7 +26,12 @@ for example:
 It is to be noted that when updating a manually updated file with latest registered students, -HS key is **not** required. (use -HS for only **first** time in case of Hauptseminar, because it does add extra columns and shuffle the review pattern).
 Only ```--update=<manually updated file>``` is sufficient.
 
-## Changelog(03.12.2020)
+## Run Script2
+* ```python toolscripts/GraderSheets.py DataSources/master_sheet_manually_updated.xlsx```
+
+Grader Xlsx files are generated in this path :
+```OutputFiles/GraderSheets/```
+## Changelog(17.12.2020)
 * used openpyxl
 * -HS switch is working 
 * replaced headers while xlsx-->dataframe
@@ -42,4 +47,6 @@ Only ```--update=<manually updated file>``` is sufficient.
 * update the master file with a new input file(with extra student entry)
 * added help feature for script(argparse)
 
-## Pending(Script2)
+## Script2 (On progress)
+* Generated grader files for individual supervisor with respective names in the master sheet.
+* Added overview page with cell customized with grader name
