@@ -72,6 +72,7 @@ def choose_fixed_place(modified_df):
     filtered_df = filtered_df[['FAMILIENNAME','VORNAME','MATRIKELNUMMER','GESCHLECHT','E-MAIL']]
     return filtered_df
 
+
 def generate_supervisor_files(modified_df):
     supervisor_list = modified_df.BETREUER.unique()
     print("Here are the list of supervisors")
@@ -82,6 +83,8 @@ def generate_supervisor_files(modified_df):
         #blank_dataframe = pd.DataFrame()
         overview_dataframe = add_overview_sheet(supervisor)
         overview_dataframe.to_excel(writer, 'Overview')
+        paper_grading_dataframe = add_paper_grading_sheet(supervisor, modified_df)
+        paper_grading_dataframe.to_excel(writer, 'Paper Grading')
         writer.save()
 
 
@@ -95,6 +98,37 @@ def add_overview_sheet(supervisor):
     src_sheet['C2'] = supervisor
     overview_df = pd.DataFrame(src_sheet.values)
     return overview_df
+
+
+def add_paper_grading_sheet(supervisor, modified_df):
+    src_grading_wb = load_workbook('DataSources/Foik_GradingSheetSeminar.xlsx')
+    print("The available sheets in the xlsx file")
+    print(src_grading_wb.sheetnames)
+    src_sheet = src_grading_wb["Paper Grading"]
+    print("selected sheet for data manipulation:")
+    print(src_sheet)
+    #src_sheet['E9'] = supervisor
+    paper_grading_df = pd.DataFrame(src_sheet.values)
+    paper_grading_df = paper_grading_df[:6]     # taking only first rows from template
+    supervision_df = modified_df[(modified_df.BETREUER == supervisor)]
+    supervision_df = supervision_df[['FAMILIENNAME', 'VORNAME', 'MATRIKELNUMMER', 'TITEL']]
+    for index, row in supervision_df.iterrows():
+        paper_grading_df.loc[len(paper_grading_df), 0] = "Paper "+ str(index+1)
+        paper_grading_df.loc[len(paper_grading_df)-1,1] = row.TITEL
+        paper_grading_df.loc[len(paper_grading_df), 0] = row.FAMILIENNAME
+        paper_grading_df.loc[len(paper_grading_df)-1, 1] = row.VORNAME
+        paper_grading_df.loc[len(paper_grading_df)-1, 2] = row.MATRIKELNUMMER
+        paper_grading_df.loc[len(paper_grading_df) - 1, 3] = "Advisor:"
+        paper_grading_df.loc[len(paper_grading_df) - 1, 4] = supervisor
+        paper_grading_df.loc[len(paper_grading_df), 0] = "Points:"
+        paper_grading_df.loc[len(paper_grading_df)-1, 1] = "na"
+        paper_grading_df.loc[len(paper_grading_df), 0] = "Comments:"
+        paper_grading_df.loc[len(paper_grading_df) - 1, 1] = "na"
+        paper_grading_df.loc[len(paper_grading_df)] = ""
+        paper_grading_df.loc[len(paper_grading_df)] = ""
+        print(row)
+
+    return paper_grading_df
 
 
 def add_columns(filtered_df):
