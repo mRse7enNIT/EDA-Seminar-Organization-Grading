@@ -85,6 +85,8 @@ def generate_supervisor_files(modified_df):
         overview_dataframe.to_excel(writer, 'Overview')
         paper_grading_dataframe = add_paper_grading_sheet(supervisor, modified_df)
         paper_grading_dataframe.to_excel(writer, 'Paper Grading')
+        review_grading_dataframe = add_review_grading_sheet(supervisor, modified_df)
+        review_grading_dataframe.to_excel(writer, 'Review Grading')
         writer.save()
 
 
@@ -129,6 +131,40 @@ def add_paper_grading_sheet(supervisor, modified_df):
         print(row)
 
     return paper_grading_df
+
+
+def add_review_grading_sheet(supervisor, modified_df):
+    src_grading_wb = load_workbook('DataSources/Foik_GradingSheetSeminar.xlsx')
+    print("The available sheets in the xlsx file")
+    print(src_grading_wb.sheetnames)
+    src_sheet = src_grading_wb["Review Grading"]
+    print("selected sheet for data manipulation:")
+    print(src_sheet)
+    #src_sheet['E9'] = supervisor
+    review_grading_df = pd.DataFrame(src_sheet.values)
+    reviewer_interaction_df = review_grading_df[8:18]
+    review_grading_df = review_grading_df[:5]     # taking only first rows from template
+    supervision_df = modified_df[(modified_df.BETREUER == supervisor)]
+    supervision_df = supervision_df[['FAMILIENNAME', 'VORNAME', 'MATRIKELNUMMER', 'TITEL', 'REVIEW_VON']]
+    for index, row in supervision_df.iterrows():
+        review_grading_df.loc[len(review_grading_df), 0] = "Review for Paper "+ str(index+1)
+        review_grading_df.loc[len(review_grading_df)-1,2] = "Title: "+ row.TITEL
+        review_grading_df.loc[len(review_grading_df),0] = "Author:"
+        review_grading_df.loc[len(review_grading_df)-1, 1] = row.FAMILIENNAME
+        review_grading_df.loc[len(review_grading_df)-1, 2] = row.VORNAME
+        review_grading_df.loc[len(review_grading_df)-1, 3] = row.MATRIKELNUMMER
+        review_grading_df.loc[len(review_grading_df)-1, 4] = "Advisor:"
+        review_grading_df.loc[len(review_grading_df) - 1, 5] = supervisor
+        for indexreview, rowreview in modified_df.iterrows():
+            if rowreview.REVIEW_FÜR == row.MATRIKELNUMMER:
+                review_grading_df.loc[len(review_grading_df), 0] = "Reviewer:"
+                review_grading_df.loc[len(review_grading_df)-1, 1] = rowreview.FAMILIENNAME
+                review_grading_df.loc[len(review_grading_df) - 1, 2] = rowreview.VORNAME
+                review_grading_df.loc[len(review_grading_df) - 1, 3] = rowreview.MATRIKELNUMMER
+                review_grading_df = pd.concat([review_grading_df,reviewer_interaction_df],axis=0,ignore_index=True)
+        review_grading_df.loc[len(review_grading_df)] = ""
+        review_grading_df.loc[len(review_grading_df)] = ""
+    return review_grading_df
 
 
 def add_columns(filtered_df):
