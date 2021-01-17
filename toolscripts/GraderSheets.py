@@ -87,6 +87,8 @@ def generate_supervisor_files(modified_df):
         paper_grading_dataframe.to_excel(writer, 'Paper Grading')
         review_grading_dataframe = add_review_grading_sheet(supervisor, modified_df)
         review_grading_dataframe.to_excel(writer, 'Review Grading')
+        presentations_dataframe = add_presentations_sheet(supervisor, modified_df)
+        presentations_dataframe.to_excel(writer, 'Presentations')
         writer.save()
 
 
@@ -165,6 +167,43 @@ def add_review_grading_sheet(supervisor, modified_df):
         review_grading_df.loc[len(review_grading_df)] = ""
         review_grading_df.loc[len(review_grading_df)] = ""
     return review_grading_df
+
+
+def add_presentations_sheet(supervisor, modified_df):
+    src_grading_wb = load_workbook('DataSources/Foik_GradingSheetSeminar.xlsx')
+    print("The available sheets in the xlsx file")
+    print(src_grading_wb.sheetnames)
+    src_sheet = src_grading_wb["Presentations"]
+    print("selected sheet for data manipulation:")
+    print(src_sheet)
+    #src_sheet['E9'] = supervisor
+    review_grading_df = pd.DataFrame(src_sheet.values)
+    reviewer_interaction_df = review_grading_df[3:13]
+    review_grading_df = review_grading_df[:1]     # taking only first rows from template
+    # supervision_df = modified_df[(modified_df.BETREUER == supervisor)]
+    # supervision_df = supervision_df[['FAMILIENNAME', 'VORNAME', 'MATRIKELNUMMER', 'TITEL', 'REVIEW_VON']]
+
+    for talk_number in range(len(modified_df)):
+        for indextalk, rowtalk in modified_df.iterrows():
+            if rowtalk.VORTRAG == (talk_number+1):
+                review_grading_df.loc[len(review_grading_df), 0] = "Talk " + str(talk_number + 1)
+                review_grading_df.loc[len(review_grading_df) - 1, 1] = rowtalk.TITEL
+                review_grading_df.loc[len(review_grading_df), 0] = "Speaker:"
+                review_grading_df.loc[len(review_grading_df) - 1, 1] = rowtalk.VORNAME
+                review_grading_df.loc[len(review_grading_df) - 1, 2] = rowtalk.FAMILIENNAME
+                review_grading_df.loc[len(review_grading_df) - 1, 3] = rowtalk.MATRIKELNUMMER
+                review_grading_df.loc[len(review_grading_df) - 1, 4] = "Advisor:"
+                review_grading_df.loc[len(review_grading_df) - 1, 5] = rowtalk.BETREUER
+                review_grading_df = pd.concat([review_grading_df, reviewer_interaction_df], axis=0, ignore_index=True)
+
+        review_grading_df.loc[len(review_grading_df)] = ""
+        review_grading_df.loc[len(review_grading_df)] = ""
+
+
+    return review_grading_df
+
+
+
 
 
 def add_columns(filtered_df):
