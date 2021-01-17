@@ -47,8 +47,9 @@ Grader Xlsx files are generated in this path :
 * update the master file with a new input file(with extra student entry)
 * added help feature for script(argparse)
 
-## Script2 (On progress)
+## Script2 (Ready to test)
 * Generated grader files for individual supervisor with respective names in the master sheet.
 * Added overview page with cell customized with grader name
 * Added Paper Grading Sheet with multi student support
 * Added Review Grading Sheet with multi student support
+* Added Presentations Sheet for all talks in chronological order
