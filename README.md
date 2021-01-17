@@ -50,3 +50,5 @@ Grader Xlsx files are generated in this path :
 ## Script2 (On progress)
 * Generated grader files for individual supervisor with respective names in the master sheet.
 * Added overview page with cell customized with grader name
+* Added Paper Grading Sheet with multi student support
+* Added Review Grading Sheet with multi student support
