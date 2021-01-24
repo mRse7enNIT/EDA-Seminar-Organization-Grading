@@ -19,7 +19,7 @@ import argparse
 import os
 
 def create_arg_parser():
-    # Creates and returns the ArgumentParser object
+    """Creates and returns the ArgumentParser object"""
 
     parser = argparse.ArgumentParser(description='Gives confirmed list of students with review allocation')
     parser.add_argument('inputFile',
@@ -30,37 +30,29 @@ def create_arg_parser():
                         help='use this to update an existing master file with new students from moodle')
     return parser
 
+
 def read_srcfile(source_filename):
-    # Import the src file from TUMonline into a Pandas dataframe
-    #src_xlsx = pd.ExcelFile(source_filename)
-    #print("Sheets present in the src xlsx file: \n")
-    #print(src_xlsx.sheet_names)
-    #src_df = src_xlsx.parse('TUMonline_2020-11-07')
+    """Import the src file from TUMonline into a Pandas dataframe"""
+
     src_wb = load_workbook(source_filename)
     print("The available sheets in the xlsx file")
     print(src_wb.sheetnames)
     src_sheet = src_wb.active
     print("selected sheet for data manipulation:")
     print(src_sheet)
-    src_df = pd.DataFrame(src_sheet.values)
+    src_df = pd.DataFrame(src_sheet.values)     #return the sheet values as pandas Dataframe
     return src_df
 
 
 def write_masterfile(write_df):
-    # master_wb = Workbook()
-    # current_ws = master_wb.active
-    # for r in dataframe_to_rows(write_df, index=True, header= True):
-    #     current_ws.append(r)
-    # for cell in current_ws['A'] + current_ws[1]:
-    #     cell.style = 'Pandas'
-    #
-    # master_wb.save("OutputFiles/master_sheet_" + str(pd.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')) + ".xlsx")
+    """Create Xlsx file with current timestamp(to identify latest updated version. Then copying the pandas df in Sheets)"""
     writer = pd.ExcelWriter("OutputFiles/master_sheet_" + str(pd.datetime.now().strftime('%Y_%m_%d_%H_%M_%S')) + ".xlsx", engine='xlsxwriter')
     write_df.to_excel(writer,'Sheet1')
     writer.save()
 
 
 def replace_header(input_df):
+    """replace headers of the dataframe with first row of sheet"""
     new_header = input_df.iloc[0]
     input_df = input_df[1:]
     input_df.columns=new_header
@@ -68,8 +60,7 @@ def replace_header(input_df):
 
 
 def choose_fixed_place(modified_df):
-    # for (idx,row) in modified_df.iterrows():
-    #     print(idx,row)
+    """This function selects the students with Status as Fixed place and filter out the column names for  those students which are required for the Master Sheet"""
     filtered_df = modified_df[(modified_df.STATUS=='Fixplatz')]
     filtered_df.reset_index(inplace=True, drop=True)
     filtered_df = filtered_df[['FAMILIENNAME','VORNAME','MATRIKELNUMMER','GESCHLECHT','E-MAIL']]
@@ -77,18 +68,21 @@ def choose_fixed_place(modified_df):
 
 
 def add_columns(filtered_df):
+    """This function adds additional columns for TITEL, BETREUER, VORTRAG for each student with a fixed place, the details can be manually filled after the Master Sheet is generated"""
     print("adding additional columns for TITEL, BETREUER, VORTRAG")
     extended_df = filtered_df.assign(TITEL='', BETREUER='', VORTRAG='')
     return extended_df
 
 
 def add_columns_HS(extended_df):
+    """Only in case of Hauptseminar, this function adds additional columns for REVIEW FÜR (AKTIVE), REVIEW VON (PASSIV)"""
     print("adding additional columns for REVIEW FÜR (AKTIVE), REVIEW VON (PASSIV)")
     extended_df = extended_df.assign(REVIEW_FÜR='', REVIEW_VON='')
     return extended_df
 
 
 def shuffle_review(extended_df):
+    """In case of HauptSeminar, Shuffling the review for column to assign a student report to another student"""
     print("Shuffling the review for column to assign a student report to another student")
     #uncomment this section if you want random shuffling
     # shuffled_review_column = extended_df.drop(extended_df.columns.difference(['REVIEW_FÜR']), 1)
@@ -114,8 +108,9 @@ def shuffle_review(extended_df):
 
 
 def main():
+    """Entry point for Scipt1 (Preparing the MasterSheet from TUMonline input sheet)"""
     arg_parser = create_arg_parser()
-    parsed_args = arg_parser.parse_args(sys.argv[1:])
+    parsed_args = arg_parser.parse_args(sys.argv[1:])   #parsing arguments after first one(self)
     if os.path.exists(parsed_args.inputFile):
         print("Input File exists")
         src_df = read_srcfile(parsed_args.inputFile)
@@ -125,16 +120,16 @@ def main():
         filtered_df = choose_fixed_place(modified_df)
         print(filtered_df)
         extended_df = add_columns(filtered_df)
-    if(parsed_args.updatepath):
+    if(parsed_args.updatepath):     #Parse the path to the manually modified file to get new entries from TUMonline
         print("Updating student information in {}".format(parsed_args.updatepath))
-        des_df = read_srcfile("".join(parsed_args.updatepath))
+        des_df = read_srcfile("".join(parsed_args.updatepath))  #Read Manually modified MasterSheet
         print(des_df.to_string())
         modified_df_update = replace_header(des_df)
         print(modified_df_update)
-        modified_df_update = modified_df_update.loc[:, modified_df_update.columns.notnull()]
+        modified_df_update = modified_df_update.loc[:, modified_df_update.columns.notnull()]        #shaping the datframe for sheets
         modified_df_update.reset_index(inplace=True, drop=True)
         #extended_df = add_columns(filtered_df_update)
-        for index, row in extended_df.iterrows():
+        for index, row in extended_df.iterrows():       #iterate df to check new entries
             flag_new_entry = 1
             for index_updated, row_updated in modified_df_update.iterrows():
                 if extended_df.iloc[index]['MATRIKELNUMMER'] == modified_df_update.iloc[index_updated]['MATRIKELNUMMER']:
@@ -153,7 +148,7 @@ def main():
     # source_filename = sys.argv[1]
 
     #if(arguments==2 and sys.argv[2]=='-HS'):
-    if (parsed_args.hauptseminar):
+    if (parsed_args.hauptseminar):      #check if -HS key is used, then extra features added to MasterSheet for Hauptseminar
         extended_df = add_columns_HS(extended_df)
         extended_df = shuffle_review(extended_df)
     write_masterfile(extended_df)
