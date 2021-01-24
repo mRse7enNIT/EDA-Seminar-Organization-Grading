@@ -96,3 +96,10 @@ Grader Xlsx files are generated in this path :
 * Added Paper Grading Sheet with multi student support
 * Added Review Grading Sheet with multi student support
 * Added Presentations Sheet for all talks in chronological order
+
+## Changelog(24.01.2021)
+* Added pdoc3 package for documentation in requirements
+* Added Project directory structure in README
+* Cleaned and documented Script1 and Script2
+* Documentation for the whole project in Graphical presentation(Block Diagram)
+* pdoc html files for both scripts
