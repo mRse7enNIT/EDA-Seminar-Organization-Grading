@@ -14,8 +14,11 @@ eda-seminar-organization-grading/
 │   └── master_sheet.xlsx (template sheet for generating Master Sheet from Script1)
 ├── Documentation
 │   └── generate_directory_tree.py (Script to generated Directory structure of the project)
+│   └── Project-structure-graphical.pdf (Project structure slides)
+│   └── Project-structure-graphical.pptx (Project structure slides)
 ├── html (This Directory contains documentation of Scripts in HTML format)
 │   └── ConfirmedStudents.html (pdoc for Script1)
+│   └── GraderSheets.html (pdoc for Script2)
 ├── LICENSE 
 ├── Makefile
 ├── MANIFEST.in
