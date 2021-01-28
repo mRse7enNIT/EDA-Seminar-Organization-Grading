@@ -77,6 +77,13 @@ Only ```--update=<manually updated file>``` is sufficient.
 
 Grader Xlsx files are generated in this path :
 ```OutputFiles/GraderSheets/```
+
+## Generate pdoc documentation in the directory html/
+```pdoc --html toolscripts/ConfirmedStudents.py```
+
+To overwrite
+```pdoc --html toolscripts/ConfirmedStudents.py --force``` 
+
 ## Changelog(17.12.2020)
 * used openpyxl
 * -HS switch is working 
